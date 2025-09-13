@@ -3,7 +3,8 @@ const path = require('path');
 module.exports = {
   mode: "production",
   entry: {
-    "latest": './src/gameCanvas-5.0.js',
+    "latest": './src/gameCanvas-6.0.js',
+    "6.0": './src/gameCanvas-6.0.js',
     "5.0": './src/gameCanvas-5.0.js',
     "4.0": './src/gameCanvas-4.0.js',
     "3.0": './src/gameCanvas-3.0.js',
