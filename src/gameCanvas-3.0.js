@@ -1,4 +1,4 @@
-function GameCanvas(canvas, width, height, settings) {
+export default function GameCanvas(canvas, width, height, settings) {
     var _this = this;
     
     if (arguments.length == 0) {
@@ -509,7 +509,6 @@ function GameCanvas(canvas, width, height, settings) {
         else
             return (Math.random() * (max - min) + min) >> 0;
     }
-    this.topFunction.random = this.topFunction.randomInt;
     
     this.topFunction.randomArray = function(array) {
         return array[(Math.random() * array.length) >> 0];
@@ -591,7 +590,7 @@ function GameCanvas(canvas, width, height, settings) {
         var rect = _this.canvas.getBoundingClientRect();
         _this.topFunction.mouse.x = _this.topFunction.mouseX = Math.round((e.clientX - rect.left) * (_this.topFunction.width / rect.width));
         _this.topFunction.mouse.y = _this.topFunction.mouseY = Math.round((e.clientY - rect.top) * (_this.topFunction.height / rect.height));
-        typeof OnMouseMove === "function" && OnMouseMove();
+        typeof OnMouseMove === "function" && OnMouseMove(e);
     });
     
     this.canvas.addEventListener("mousedown", function(e) {
@@ -606,7 +605,7 @@ function GameCanvas(canvas, width, height, settings) {
                 _this.topFunction.mouse.right = true;
                 break;
         }
-        typeof OnMouseDown === "function" && OnMouseDown();
+        typeof OnMouseDown === "function" && OnMouseDown(e);
     });
     
     this.canvas.addEventListener("mouseup", function(e) {
@@ -621,7 +620,7 @@ function GameCanvas(canvas, width, height, settings) {
                 _this.topFunction.mouse.right = false;
                 break;
         }
-        typeof OnMouseUp === "function" && OnMouseUp();
+        typeof OnMouseUp === "function" && OnMouseUp(e);
     });
     
     this.canvas.addEventListener("touchstart", function(e) {
@@ -631,7 +630,7 @@ function GameCanvas(canvas, width, height, settings) {
         _this.topFunction.touch.y = e.touches[0].pageY;
         _this.topFunction.touch.touching = true;
         
-        typeof OnTouchStart === "function" && OnTouchStart();
+        typeof OnTouchStart === "function" && OnTouchStart(e);
     });
     
     this.canvas.addEventListener("touchend", function(e) {
@@ -639,7 +638,7 @@ function GameCanvas(canvas, width, height, settings) {
         changeTouch(e);
         _this.topFunction.touch.touching = false;
         
-        typeof OnTouchEnd === "function" && OnTouchEnd();
+        typeof OnTouchEnd === "function" && OnTouchEnd(e);
     });
     
     this.canvas.addEventListener("touchmove", function(e) {
@@ -654,7 +653,7 @@ function GameCanvas(canvas, width, height, settings) {
             _this.topFunction.touch.y = e.touches[0].pageY;
         }
         
-        typeof OnTouchMove === "function" && OnTouchMove();
+        typeof OnTouchMove === "function" && OnTouchMove(e);
     });
     
     var changeTouch = function(e) {
@@ -667,12 +666,21 @@ function GameCanvas(canvas, width, height, settings) {
     document.addEventListener("keydown", function(e) {
         _this.keyNumber[e.which] = true;
         _this.keyName[e.key] = true;
-        typeof OnKeyDown === "function" && OnKeyDown();
+        typeof OnKeyDown === "function" && OnKeyDown(e);
     });
     
     document.addEventListener("keyup", function(e) {
         _this.keyNumber[e.which] = false;
         _this.keyName[e.key] = false;
-        typeof OnKeyUp === "function" && OnkeyUp();
+        typeof OnKeyUp === "function" && OnkeyUp(e);
     });
 }
+
+
+
+
+
+
+
+
+
