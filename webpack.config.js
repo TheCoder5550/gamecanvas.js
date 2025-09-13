@@ -9,6 +9,7 @@ module.exports = {
     "4.0": './src/gameCanvas-4.0.js',
     "3.0": './src/gameCanvas-3.0.js',
     "2.0": './src/gameCanvas-2.0.js',
+    "1.0": './src/gameCanvas-1.0.js',
   },
   output: {
     filename: 'gameCanvas-[name].min.js',
