@@ -1535,7 +1535,7 @@ export default class GameCanvas {
   }
 }
 
-function EventHandler() {
+export function EventHandler() {
   this.events = {};
 
   this.addEvent = this.on = function(name, func) {
