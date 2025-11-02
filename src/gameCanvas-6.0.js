@@ -638,6 +638,19 @@ export default class GameCanvas {
       this.ctx.fillRect(x, y, width, height);
   }
 
+  pixelPerfectRectangle(x, y, width, height, color, strokeColor, lineWidth) {
+    const x1 = makePixelPerfect(this, x, lineWidth);
+    const y1 = makePixelPerfect(this, y, lineWidth);
+    const x2 = makePixelPerfect(this, x + width, lineWidth);
+    const y2 = makePixelPerfect(this, y + height, lineWidth);
+    width = x2 - x1;
+    height = y2 - y1;
+
+    const recDPR = 1 / this.dpr;
+
+    this.rectangle(x1, y1, width, height, color, strokeColor, lineWidth * recDPR);
+  }
+
   roundedRectangle(x, y, w, h, color, cornerRadii, strokeColor, lineWidth) {
     if (typeof cornerRadii === "number") cornerRadii = [cornerRadii, cornerRadii, cornerRadii, cornerRadii];
     this.ctx.beginPath();
