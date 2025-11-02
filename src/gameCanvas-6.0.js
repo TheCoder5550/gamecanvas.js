@@ -133,7 +133,7 @@ export default class GameCanvas {
     this.keys = {
       keysDown: [],
       ctrlPressed: false,
-      shiftSPressed: false,
+      shiftPressed: false,
       altPressed: false
     };
     this.mouse = {
