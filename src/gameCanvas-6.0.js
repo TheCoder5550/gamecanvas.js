@@ -1045,6 +1045,9 @@ export default class GameCanvas {
   }
 
   setTextAlignY(align) {
+    if (align === "center") {
+      align = "middle";
+    }
     this.ctx.textBaseline = align;
   }
 
