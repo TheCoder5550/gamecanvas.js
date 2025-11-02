@@ -61,6 +61,8 @@ export default class GameCanvas {
     //   willReadFrequently: true
     // }
 
+    this.dpr = 1;
+
     reactivePixelRatio(this);
     this._forceUpdatePixelRatio = () => {
       this.dpr = window.devicePixelRatio || 1;
@@ -69,6 +71,12 @@ export default class GameCanvas {
     // Canvas size
     let _width = 300;
     let _height = 150;
+
+    this.fastStyleWidth = 0;
+    this.fastStyleHeight = 0;
+    
+    this.fastBufferWidth = 0;
+    this.fastBufferHeight = 0;
 
     if (settings.hasOwnProperty("width")) {
       if (!isNaN(settings.width))
