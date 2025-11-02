@@ -244,7 +244,7 @@ export default class GameCanvas {
 
     */
 
-    this.canvas.addEventListener("mousemove", event => {
+    document.addEventListener("mousemove", event => {
       let br = this.canvas.getBoundingClientRect();
       this.mouse.x = (event.clientX - br.left) / (br.width / this.width);
       this.mouse.y = (event.clientY - br.top) / (br.height / this.height);
