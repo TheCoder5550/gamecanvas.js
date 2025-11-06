@@ -1,5 +1,7 @@
 "use strict";
 
+const TRANSPARENT = "transparent";
+
 export default class GameCanvas {
   /*
 
@@ -600,10 +602,12 @@ export default class GameCanvas {
     this.ctx.beginPath();
     this.ctx.arc(x, y, radius, 0, Math.PI * 2);
     this.ctx.fillStyle = color;
-    if (strokeColor) this.ctx.strokeStyle = strokeColor;
     if (lineWidth) this.ctx.lineWidth = lineWidth;
     this.ctx.fill();
-    if (strokeColor) this.ctx.stroke();
+    if (shouldRenderStroke(strokeColor)) {
+      this.ctx.strokeStyle = strokeColor;
+      this.ctx.stroke();
+    }
   }
 
   ring(x, y, radius, color, lineWidth) {
@@ -618,16 +622,18 @@ export default class GameCanvas {
     this.ctx.beginPath();
     this.ctx.ellipse(x, y, radiusX, radiusY, rotation, 0, Math.PI * 2);
     this.ctx.fillStyle = color;
-    if (strokeColor) this.ctx.strokeStyle = strokeColor;
     if (lineWidth) this.ctx.lineWidth = lineWidth;
     this.ctx.fill();
-    if (strokeColor) this.ctx.stroke();
+    if (shouldRenderStroke(strokeColor)) {
+      this.ctx.strokeStyle = strokeColor;
+      this.ctx.stroke();
+    }
   }
 
   rectangle(x, y, width, height, color, strokeColor, lineWidth) {
     if (color) this.ctx.fillStyle = color;
     if (lineWidth) this.ctx.lineWidth = lineWidth;
-    if (strokeColor) {
+    if (shouldRenderStroke(strokeColor)) {
       this.ctx.beginPath();
       this.ctx.strokeStyle = strokeColor;
       this.ctx.rect(x, y, width, height);
@@ -662,7 +668,7 @@ export default class GameCanvas {
     this.ctx.lineTo(x + cornerRadii[3], y + h);
     this.ctx.arc(x + cornerRadii[3], y + h - cornerRadii[3], cornerRadii[3], Math.PI * 0.5, Math.PI);
     this.ctx.closePath();
-    if (strokeColor) {
+    if (shouldRenderStroke(strokeColor)) {
       if (lineWidth) this.ctx.lineWidth = lineWidth;
       this.ctx.strokeStyle = strokeColor;
       this.ctx.stroke();
@@ -680,7 +686,7 @@ export default class GameCanvas {
     this.ctx.fillStyle = color;
     if (lineWidth) this.ctx.lineWidth = lineWidth;
     this.ctx.fill();
-    if (strokeColor) {
+    if (shouldRenderStroke(strokeColor)) {
       this.ctx.strokeStyle = strokeColor;
       this.ctx.stroke();
     }
@@ -759,7 +765,7 @@ export default class GameCanvas {
     this.ctx.fillStyle = color;
     if (lineWidth) this.ctx.lineWidth = lineWidth;
     this.ctx.fillText(textString, x, y);
-    if (strokeColor) {
+    if (shouldRenderStroke(strokeColor)) {
       this.ctx.strokeStyle = strokeColor;
       this.ctx.strokeText(textString, x, y);
     }
@@ -809,7 +815,7 @@ export default class GameCanvas {
       this.ctx.fillStyle = fillColor;
       this.ctx.fill();
     }
-    if (strokeColor) {
+    if (shouldRenderStroke(strokeColor)) {
       if (lineWidth) this.ctx.lineWidth = lineWidth;
       this.ctx.strokeStyle = strokeColor;
       this.ctx.stroke();
@@ -1657,4 +1663,11 @@ function reactivePixelRatio(gc) {
   };
 
   updatePixelRatio();
+}
+
+function shouldRenderStroke(strokeColor) {
+  return (
+    strokeColor &&
+    strokeColor !== TRANSPARENT
+  )
 }
