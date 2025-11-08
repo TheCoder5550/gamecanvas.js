@@ -320,7 +320,7 @@ export default class GameCanvas {
       return true;
     });
 
-    this.canvas.addEventListener("wheel", event => {
+    document.body.addEventListener("wheel", event => {
       this.mouse.scrollX = event.deltaX;
       this.mouse.scrollY = event.deltaY;
       this.mouse.scrollZ = event.deltaZ;
