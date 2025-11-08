@@ -291,11 +291,11 @@ export default class GameCanvas {
       }
     });
 
-    document.addEventListener("mouseup", event => {
+    document.addEventListener("mouseup", () => {
       this.pan.isPanning = false;
-    });
+    }, { passive: true });
 
-    this.canvas.addEventListener("mouseup", event => {
+    document.addEventListener("mouseup", event => {
       let button = event.button;
       if (button < 3)
         this.mouse[this.mouseLookupTable[button]] = false;
