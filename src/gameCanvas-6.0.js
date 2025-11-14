@@ -1588,6 +1588,12 @@ export function EventHandler() {
     event.functions.splice(index, 1);
   };
 
+  /**
+   * Fire event
+   * @param {string} name 
+   * @param  {...unknown} args 
+   * @returns {boolean}
+   */
   this.fireEvent = function(name, ...args) {
     if (this.events[name]) {
       for (var func of this.events[name].functions) {
@@ -1597,6 +1603,23 @@ export function EventHandler() {
     }
 
     return false;
+  };
+
+  /**
+   * Fire event and gather all return results
+   * @param {string} name 
+   * @param  {...unknown} args 
+   * @returns {unknown[]}
+   */
+  this.fireEventAndGetResult = function(name, ...args) {
+    if (this.events[name]) {
+      const results = this.events[name].functions.map(f => {
+        return f(...args);
+      });
+      return results;
+    }
+
+    return [];
   };
 }
 
