@@ -80,13 +80,13 @@ export default class GameCanvas {
     this.fastBufferWidth = 0;
     this.fastBufferHeight = 0;
 
-    if (settings.hasOwnProperty("width")) {
+    if (Object.prototype.hasOwnProperty.call(settings, "width")) {
       if (!isNaN(settings.width))
         _width = settings.width;
       else
         throw Error("Width is not a number: " + settings.width);
     }
-    if (settings.hasOwnProperty("height")) {
+    if (Object.prototype.hasOwnProperty.call(settings, "height")) {
       if (!isNaN(settings.height))
         _height = settings.height;
       else
@@ -96,8 +96,8 @@ export default class GameCanvas {
     setCanvasSize(this, _width, _height);
 
     this.isFullpage =
-      !(settings.hasOwnProperty("width") || settings.hasOwnProperty("height")) &&
-      (!settings.hasOwnProperty("noFullscreen") || (settings.hasOwnProperty("noFullscreen") && !settings.noFullscreen));
+      !(Object.prototype.hasOwnProperty.call(settings, "width") || Object.prototype.hasOwnProperty.call(settings, "height")) &&
+      (!Object.prototype.hasOwnProperty.call(settings, "noFullscreen") || (Object.prototype.hasOwnProperty.call(settings, "noFullscreen") && !settings.noFullscreen));
 
     if (this.isFullpage) {
       // "+ 1" fills remaining space around canvas when zoomed in a lot
@@ -109,20 +109,20 @@ export default class GameCanvas {
 
       document.body.style.overflow = "hidden";
 
-      this.disableContextMenu = settings.hasOwnProperty("disableContextMenu") ? settings.disableContextMenu : true;
-      this.disableMiddleMouse = settings.hasOwnProperty("disableMiddleMouse") ? settings.disableMiddleMouse : true;
-      this.disableScrollOnMobile = settings.hasOwnProperty("disableScrollOnMobile") ? settings.disableScrollOnMobile : true;
-      this.disableKeyShortcuts = settings.hasOwnProperty("disableKeyShortcuts") ? settings.disableKeyShortcuts : false;
-      this.updateCanvasSizeOnResize = settings.hasOwnProperty("updateCanvasSizeOnResize") ? settings.updateCanvasSizeOnResize : true;
-      this.publicMethods = settings.hasOwnProperty("publicMethods") ? settings.publicMethods : true;
+      this.disableContextMenu = Object.prototype.hasOwnProperty.call(settings, "disableContextMenu") ? settings.disableContextMenu : true;
+      this.disableMiddleMouse = Object.prototype.hasOwnProperty.call(settings, "disableMiddleMouse") ? settings.disableMiddleMouse : true;
+      this.disableScrollOnMobile = Object.prototype.hasOwnProperty.call(settings, "disableScrollOnMobile") ? settings.disableScrollOnMobile : true;
+      this.disableKeyShortcuts = Object.prototype.hasOwnProperty.call(settings, "disableKeyShortcuts") ? settings.disableKeyShortcuts : false;
+      this.updateCanvasSizeOnResize = Object.prototype.hasOwnProperty.call(settings, "updateCanvasSizeOnResize") ? settings.updateCanvasSizeOnResize : true;
+      this.publicMethods = Object.prototype.hasOwnProperty.call(settings, "publicMethods") ? settings.publicMethods : true;
     }
     else {
-      this.disableContextMenu = settings.hasOwnProperty("disableContextMenu") ? settings.disableContextMenu : false;
-      this.disableMiddleMouse = settings.hasOwnProperty("disableMiddleMouse") ? settings.disableMiddleMouse : false;
-      this.disableScrollOnMobile = settings.hasOwnProperty("disableScrollOnMobile") ? settings.disableScrollOnMobile : false;
-      this.disableKeyShortcuts = settings.hasOwnProperty("disableKeyShortcuts") ? settings.disableKeyShortcuts : false;
-      this.updateCanvasSizeOnResize = settings.hasOwnProperty("updateCanvasSizeOnResize") ? settings.updateCanvasSizeOnResize : false;
-      this.publicMethods = settings.hasOwnProperty("publicMethods") ? settings.publicMethods : true;
+      this.disableContextMenu = Object.prototype.hasOwnProperty.call(settings, "disableContextMenu") ? settings.disableContextMenu : false;
+      this.disableMiddleMouse = Object.prototype.hasOwnProperty.call(settings, "disableMiddleMouse") ? settings.disableMiddleMouse : false;
+      this.disableScrollOnMobile = Object.prototype.hasOwnProperty.call(settings, "disableScrollOnMobile") ? settings.disableScrollOnMobile : false;
+      this.disableKeyShortcuts = Object.prototype.hasOwnProperty.call(settings, "disableKeyShortcuts") ? settings.disableKeyShortcuts : false;
+      this.updateCanvasSizeOnResize = Object.prototype.hasOwnProperty.call(settings, "updateCanvasSizeOnResize") ? settings.updateCanvasSizeOnResize : false;
+      this.publicMethods = Object.prototype.hasOwnProperty.call(settings, "publicMethods") ? settings.publicMethods : true;
     }
 
     this.font = "Arial";
@@ -491,7 +491,7 @@ export default class GameCanvas {
           continue;
         }
 
-        if (window.hasOwnProperty(method)) {
+        if (Object.prototype.hasOwnProperty.call(window, method)) {
           console.warn("[GameCanvas] Window already has property: " + method);
           continue;
         }
@@ -1481,7 +1481,7 @@ export default class GameCanvas {
     }
   }
 
-  create2DArray(rows, columns, value = (x, y) => 0) {
+  create2DArray(rows, columns, value = (_x, _y) => 0) {
     const array = new Array(rows);
     for (let i = 0; i < rows; i++) {
       array[i] = new Array(columns);
@@ -1557,6 +1557,9 @@ export default class GameCanvas {
   }
 }
 
+/**
+ * Basic event handler with trigger function and listeners.
+ */
 export function EventHandler() {
   this.events = {};
 
@@ -1597,10 +1600,20 @@ export function EventHandler() {
   };
 }
 
+/**
+ * Average array of numbers
+ * @param {number[]} values 
+ * @returns {number}
+ */
 function averageArray(values) {
   return values.reduce((a, b) => a + b, 0) / values.length;
 }
 
+/**
+ * Check if an image can be rendered
+ * @param {HTMLImageElement} image 
+ * @returns {boolean}
+ */
 function imageIsBroken(image) {
   if (!image.complete) {
     return true;
@@ -1613,6 +1626,12 @@ function imageIsBroken(image) {
   return false;
 }
 
+/**
+ * Set canvas size. Takes dpr into account.
+ * @param {GameCanvas} gc 
+ * @param {number} width 
+ * @param {number} height 
+ */
 function setCanvasSize(gc, width, height) {
   gc._forceUpdatePixelRatio();
   const dpr = gc.dpr;
@@ -1638,11 +1657,22 @@ function setCanvasSize(gc, width, height) {
   gc.ctx.scale(dpr, dpr);
 }
 
+/**
+ * Round coordinate to render pixel perfect lines
+ * @param {GameCanvas} gc 
+ * @param {number} x 
+ * @param {number} strokeWeight 
+ * @returns {number}
+ */
 function makePixelPerfect(gc, x, strokeWeight) {
   const recDPR = 1 / gc.dpr;
   return gc.floorNearest(x, recDPR) + recDPR / 2 * strokeWeight;
 }
 
+/**
+ * Detect when pixel ratio changes
+ * @param {GameCanvas} gc 
+ */
 function reactivePixelRatio(gc) {
   let remove = null;
 
@@ -1665,6 +1695,11 @@ function reactivePixelRatio(gc) {
   updatePixelRatio();
 }
 
+/**
+ * Check if a stroke has to be rendered
+ * @param {string | undefined | null} strokeColor 
+ * @returns {boolean}
+ */
 function shouldRenderStroke(strokeColor) {
   return (
     strokeColor &&
