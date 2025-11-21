@@ -2,127 +2,130 @@
 
 const TRANSPARENT = "transparent";
 
+/**
+ * PredefinedColorSpace
+ * @typedef {"display-p3" | "srgb"} PredefinedColorSpace
+ */
+
+/**
+ * CanvasRenderingContext2DSettings
+ * @typedef {{
+ *   alpha?: boolean;
+ *   colorSpace?: PredefinedColorSpace;
+ *   desynchronized?: boolean;
+ *   willReadFrequently?: boolean;
+ * }} CanvasRenderingContext2DSettings
+ */
+
+/**
+ * GameCanvas settings
+ * @typedef {{
+ *  width?: number;
+ *  height?: number;
+ *  fullscreen?: boolean;
+ *  disableContextMenu?: boolean;
+ *  disableMiddleMouse?: boolean;
+ *  disableScrollOnMobile?: boolean;
+ *  disableKeyShortcuts?: boolean;
+ *  publicMethods?: boolean;
+ *  contextAttributes?: CanvasRenderingContext2DSettings;
+ * }} GameCanvasSettings
+ */
+
 export default class GameCanvas {
   /*
 
     GameCanvas.js
-    Version 6.2
+    Version 6.3
 
     By Alfons Nilsson
 
   */
   
   /**
-   * 
-   * @param {HTMLCanvasElement | string} [canvas] 
-   * @param {{
-   *  width?: number,
-   *  height?: number,
-   *  noFullscreen?: boolean,
-   *  disableContextMenu?: boolean,
-   *  disableMiddleMouse?: boolean,
-   *  disableScrollOnMobile?: boolean,
-   *  disableKeyShortcuts?: boolean,
-   *  updateCanvasSizeOnResize?: boolean,
-   *  publicMethods?: boolean
-   * }} [settings]
+   * @param {HTMLCanvasElement | string | undefined | null} [canvas] 
+   * @param {GameCanvasSettings} [settings]
    */
   constructor(canvas, settings = {}) {
+    // Make sure `settings` is an object
+    if (typeof settings !== "object") {
+      settings = {};
+    }
+
     // Custom event handler
     this.eventHandler = new EventHandler();
     this.on = this.eventHandler.on.bind(this.eventHandler);
 
-    // Get canvas
-    if (canvas instanceof HTMLCanvasElement) {
-      this.canvas = canvas;
-    }
-    else if (typeof canvas === "string") {
-      const element = document.querySelector(canvas);
-      if (!element) {
-        throw new Error("Could not find " + canvas);
-      }
+    // Canvas
+    this.canvas = getCanvas(canvas);
+    this.ctx = this.canvas.getContext("2d", settings.contextAttributes);
 
-      if (!(element instanceof HTMLCanvasElement)) {
-        throw new Error("Query element is not a canvas");
-      }
+    // Canvas size
+    this.fastStyleWidth = 0;
+    this.fastStyleHeight = 0;
+    this.fastBufferWidth = this.canvas.width;
+    this.fastBufferHeight = this.canvas.height;
 
-      this.canvas = element;
-    }
-    else if (typeof canvas === "undefined") {
-      this.canvas = document.createElement("canvas");
-      document.body.appendChild(this.canvas);
-    }
-    else {
-      console.error("Value passed:", canvas);
-      throw new Error("Value passed as canvas is not a canvas element");
-    }
-
-    // Create context
-    this.ctx = this.canvas.getContext("2d");
-    // {
-    //   willReadFrequently: true
-    // }
-
+    // DPR
     this.dpr = 1;
-
     reactivePixelRatio(this);
     this._forceUpdatePixelRatio = () => {
       this.dpr = window.devicePixelRatio || 1;
     };
 
-    // Canvas size
-    let _width = 300;
-    let _height = 150;
-
-    this.fastStyleWidth = 0;
-    this.fastStyleHeight = 0;
-    
-    this.fastBufferWidth = 0;
-    this.fastBufferHeight = 0;
-
-    if (Object.prototype.hasOwnProperty.call(settings, "width")) {
-      if (!isNaN(settings.width))
-        _width = settings.width;
-      else
-        throw Error("Width is not a number: " + settings.width);
-    }
-    if (Object.prototype.hasOwnProperty.call(settings, "height")) {
-      if (!isNaN(settings.height))
-        _height = settings.height;
-      else
-        throw Error("Height is not a number: " + settings.height);
-    }
-
-    setCanvasSize(this, _width, _height);
-
-    this.isFullpage =
-      !(Object.prototype.hasOwnProperty.call(settings, "width") || Object.prototype.hasOwnProperty.call(settings, "height")) &&
-      (!Object.prototype.hasOwnProperty.call(settings, "noFullscreen") || (Object.prototype.hasOwnProperty.call(settings, "noFullscreen") && !settings.noFullscreen));
+    const hasSetSize = (
+      Object.prototype.hasOwnProperty.call(settings, "width") ||
+      Object.prototype.hasOwnProperty.call(settings, "height")
+    );
+    this.isFullpage = settings.fullscreen !== false && (settings.fullscreen === true || !hasSetSize);
 
     if (this.isFullpage) {
-      // "+ 1" fills remaining space around canvas when zoomed in a lot
-      setCanvasSize(this, window.innerWidth + 1, window.innerHeight + 1);
+      this.disableContextMenu = Object.prototype.hasOwnProperty.call(settings, "disableContextMenu") ? settings.disableContextMenu : true;
+      this.disableMiddleMouse = Object.prototype.hasOwnProperty.call(settings, "disableMiddleMouse") ? settings.disableMiddleMouse : true;
+      this.disableScrollOnMobile = Object.prototype.hasOwnProperty.call(settings, "disableScrollOnMobile") ? settings.disableScrollOnMobile : true;
+      this.disableKeyShortcuts = Object.prototype.hasOwnProperty.call(settings, "disableKeyShortcuts") ? settings.disableKeyShortcuts : false;
+      this.publicMethods = Object.prototype.hasOwnProperty.call(settings, "publicMethods") ? settings.publicMethods : true;
 
+      const setCanvasFullpageSize = () => {
+        // "+ 1" fills remaining space around canvas when zoomed in a lot
+        setCanvasSize(this, window.innerWidth + 1, window.innerHeight + 1);
+      };
+
+      document.body.append(this.canvas);
       this.canvas.style.position = "fixed";
       this.canvas.style.top = "0";
       this.canvas.style.left = "0";
 
       document.body.style.overflow = "hidden";
 
-      this.disableContextMenu = Object.prototype.hasOwnProperty.call(settings, "disableContextMenu") ? settings.disableContextMenu : true;
-      this.disableMiddleMouse = Object.prototype.hasOwnProperty.call(settings, "disableMiddleMouse") ? settings.disableMiddleMouse : true;
-      this.disableScrollOnMobile = Object.prototype.hasOwnProperty.call(settings, "disableScrollOnMobile") ? settings.disableScrollOnMobile : true;
-      this.disableKeyShortcuts = Object.prototype.hasOwnProperty.call(settings, "disableKeyShortcuts") ? settings.disableKeyShortcuts : false;
-      this.updateCanvasSizeOnResize = Object.prototype.hasOwnProperty.call(settings, "updateCanvasSizeOnResize") ? settings.updateCanvasSizeOnResize : true;
-      this.publicMethods = Object.prototype.hasOwnProperty.call(settings, "publicMethods") ? settings.publicMethods : true;
+      window.addEventListener("resize", setCanvasFullpageSize);
+      setCanvasFullpageSize();
     }
     else {
       this.disableContextMenu = Object.prototype.hasOwnProperty.call(settings, "disableContextMenu") ? settings.disableContextMenu : false;
       this.disableMiddleMouse = Object.prototype.hasOwnProperty.call(settings, "disableMiddleMouse") ? settings.disableMiddleMouse : false;
       this.disableScrollOnMobile = Object.prototype.hasOwnProperty.call(settings, "disableScrollOnMobile") ? settings.disableScrollOnMobile : false;
       this.disableKeyShortcuts = Object.prototype.hasOwnProperty.call(settings, "disableKeyShortcuts") ? settings.disableKeyShortcuts : false;
-      this.updateCanvasSizeOnResize = Object.prototype.hasOwnProperty.call(settings, "updateCanvasSizeOnResize") ? settings.updateCanvasSizeOnResize : false;
       this.publicMethods = Object.prototype.hasOwnProperty.call(settings, "publicMethods") ? settings.publicMethods : true;
+
+      // Dynamic size
+      if (!hasSetSize) {
+        const parent = this.canvas.parentElement;
+        const resizeCallback = () => {
+          const styles = getComputedStyle(parent);
+          const width = getContentWidth(parent, styles);
+          const height = getContentHeight(parent, styles);
+          setCanvasSize(this, Math.floor(width), Math.floor(height));
+        };
+        const resizeObserver = new ResizeObserver(resizeCallback);
+        resizeObserver.observe(parent);
+        resizeCallback();
+      }
+      // Static size
+      else {
+        const { width, height } = getSizeOption(settings);
+        setCanvasSize(this, width, height);
+      }
     }
 
     this.font = "Arial";
@@ -456,18 +459,7 @@ export default class GameCanvas {
     
     */
     
-    window.addEventListener("resize", event => {
-      // if (this.updateCanvasSizeOnResize) {
-      //   setCanvasSize(this, window.innerWidth + 1, window.innerHeight + 1);
-      // }
-
-      if (this.isFullpage) {
-        setCanvasSize(this, window.innerWidth + 1, window.innerHeight + 1);
-      }
-      else {
-        setCanvasSize(this, _width, _height);
-      }
-      
+    window.addEventListener("resize", event => {  
       this.eventHandler.fireEvent("resize", event);
       if (typeof window.OnResize === "function") {
         window.OnResize(event);
@@ -535,11 +527,9 @@ export default class GameCanvas {
     return this.canvas.height / this.dpr;
   }
   set width(w) {
-    // this.canvas.width = w;
     setCanvasSize(this, w, null);
   }
   set height(h) {
-    // this.canvas.height = h;
     setCanvasSize(this, null, h);
   }
 
@@ -1738,4 +1728,116 @@ function shouldRender(color) {
     color &&
     color !== TRANSPARENT
   )
+}
+
+/**
+ * Get the width of the content of an element
+ * without border and padding
+ * @param {HTMLElement} element 
+ * @param {CSSStyleDeclaration | undefined} styles 
+ * @returns {number}
+ */
+function getContentWidth(element, styles) {
+  if (!styles) {
+    styles = getComputedStyle(element);
+  }
+
+  const width = element.clientWidth
+    - parseFloat(styles.paddingLeft)
+    - parseFloat(styles.paddingRight);
+
+  return width;
+}
+
+/**
+ * Get the height of the content of an element
+ * without border and padding
+ * @param {HTMLElement} element 
+ * @param {CSSStyleDeclaration | undefined} styles 
+ * @returns {number}
+ */
+function getContentHeight(element, styles) {
+  if (!styles) {
+    styles = getComputedStyle(element);
+  }
+
+  const height = element.clientHeight
+    - parseFloat(styles.paddingTop)
+    - parseFloat(styles.paddingBottom);
+
+  return height;
+}
+
+/**
+ * Query or create canvas from query string, element or undefined
+ * @param {HTMLCanvasElement | string | undefined | null} canvas 
+ * @returns {HTMLCanvasElement}
+ */
+function getCanvas(canvas) {
+  if (canvas instanceof HTMLCanvasElement) {
+    return canvas;
+  }
+  else if (typeof canvas === "string") {
+    const element = document.querySelector(canvas);
+    if (!element) {
+      throw new Error("Could not find " + canvas);
+    }
+
+    if (!(element instanceof HTMLCanvasElement)) {
+      throw new Error("Query element is not a canvas");
+    }
+
+    return element;
+  }
+  else if (typeof canvas === "undefined" || canvas === null) {
+    canvas = document.createElement("canvas");
+    document.body.appendChild(canvas);
+    return canvas;
+  }
+  else {
+    console.error("Value passed:", canvas);
+    throw new Error("Value passed as canvas is not a canvas element");
+  }
+}
+
+/**
+ * Extract and parse canvas size from settings
+ * @param {{
+ * width?: number;
+ * height?: number;
+ * } | undefined} settings 
+ * @returns {{
+ * width: number;
+ * height: number;
+ * }}
+ */
+function getSizeOption(settings) {
+  let width = 300;
+  let height = 150;
+
+  if (typeof settings !== "object") {
+    return {
+      width,
+      height
+    }
+  }
+
+  if (Object.prototype.hasOwnProperty.call(settings, "width")) {
+    if (!isNaN(settings.width))
+      width = settings.width;
+    else
+      throw Error("Width is not a number: " + settings.width);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(settings, "height")) {
+    if (!isNaN(settings.height))
+      height = settings.height;
+    else
+      throw Error("Height is not a number: " + settings.height);
+  }
+
+  return {
+    width,
+    height
+  }
 }
