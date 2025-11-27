@@ -758,14 +758,18 @@ export default class GameCanvas {
   }
 
   text(textString, x, y, fontSize, color, strokeColor, lineWidth) {
-    this.ctx.beginPath();
+    if (fontSize < 1) {
+      return;
+    }
+
     this.ctx.font = this.fontWeight + " " + fontSize + "px " + this.font;
-    this.ctx.fillStyle = color;
-    if (lineWidth) this.ctx.lineWidth = lineWidth;
+    
     if (shouldRender(color)) {
+      this.ctx.fillStyle = color;
       this.ctx.fillText(textString, x, y);
     }
     if (shouldRender(strokeColor)) {
+      if (lineWidth) this.ctx.lineWidth = lineWidth;
       this.ctx.strokeStyle = strokeColor;
       this.ctx.strokeText(textString, x, y);
     }
